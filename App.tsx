@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { CVData, Experience, Education, Course, LayoutType } from './types';
 import CVForm from './components/CVForm';
 import CVPreview from './components/CVPreview';
-import { improveWithAI } from './services/geminiService';
 
 declare global {
   interface Window {
@@ -11,7 +10,6 @@ declare global {
   }
 }
 
-// FIX: Removed React.FC type annotation to fix component type error and improve type inference.
 const App = () => {
   const [cvData, setCvData] = useState<CVData>({
     personalInfo: {
@@ -58,7 +56,6 @@ const App = () => {
   });
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [loadingAI, setLoadingAI] = useState<Record<string, boolean>>({});
   const [layout, setLayout] = useState<LayoutType>('classic');
 
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,28 +138,6 @@ const App = () => {
   const handleSkillsChange = (skills: string[]) => {
     setCvData(prev => ({ ...prev, skills }));
   };
-
-  const handleImprove = useCallback(async (field: string, id: string | null, originalText: string) => {
-    const loadingKey = id ? `${field}-${id}` : field;
-    setLoadingAI(prev => ({...prev, [loadingKey]: true}));
-    try {
-      const improvedText = await improveWithAI(originalText, field);
-      if (field === 'summary') {
-        setCvData(prev => ({ ...prev, summary: improvedText }));
-      } else if (field === 'experience' && id) {
-        setCvData(prev => ({
-          ...prev,
-          experience: prev.experience.map(exp => exp.id === id ? { ...exp, description: improvedText } : exp)
-        }));
-      }
-// FIX: Added explicit 'any' type to error to fix "Cannot find name 'error'" and updated alert message to not mention API key.
-    } catch (error: any) {
-      console.error("AI improvement failed:", error);
-      alert("Failed to get AI suggestion. Please try again.");
-    } finally {
-      setLoadingAI(prev => ({...prev, [loadingKey]: false}));
-    }
-  }, []);
 
   const handleDownloadPdf = () => {
     const { jsPDF } = window.jspdf;
@@ -258,8 +233,6 @@ const App = () => {
           onAddCourse={addCourse}
           onRemoveCourse={removeCourse}
           onSkillsChange={handleSkillsChange}
-          onImprove={handleImprove}
-          loadingAI={loadingAI}
         />
       </main>
       

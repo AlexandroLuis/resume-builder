@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CVData } from '../types';
-import { AddIcon, TrashIcon, SparklesIcon, LoadingIcon } from './icons';
+import { AddIcon, TrashIcon } from './icons';
 
 interface CVFormProps {
   cvData: CVData;
@@ -17,8 +17,6 @@ interface CVFormProps {
   onAddCourse: () => void;
   onRemoveCourse: (id: string) => void;
   onSkillsChange: (skills: string[]) => void;
-  onImprove: (field: string, id: string | null, text: string) => void;
-  loadingAI: Record<string, boolean>;
 }
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -102,7 +100,7 @@ const SkillsInput: React.FC<{ skills: string[], onSkillsChange: (skills: string[
 const CVForm: React.FC<CVFormProps> = ({
   cvData, onPersonalInfoChange, onPhotoChange, onSummaryChange, onExperienceChange, onAddExperience, onRemoveExperience,
   onEducationChange, onAddEducation, onRemoveEducation, onCourseChange, onAddCourse, onRemoveCourse, 
-  onSkillsChange, onImprove, loadingAI
+  onSkillsChange
 }) => {
   return (
     <div className="space-y-6">
@@ -136,9 +134,6 @@ const CVForm: React.FC<CVFormProps> = ({
       
       <Section title="Professional Summary">
          <Textarea label="Summary" name="summary" value={cvData.summary} onChange={onSummaryChange} rows={5} placeholder="Write a brief summary about yourself..."/>
-         <button onClick={() => onImprove('summary', null, cvData.summary)} className="flex items-center text-sm bg-indigo-100 text-primary font-semibold py-1 px-3 rounded-full hover:bg-indigo-200 transition" disabled={loadingAI['summary']}>
-          {loadingAI['summary'] ? <><LoadingIcon /> Improving...</> : <><SparklesIcon /> Improve with AI</>}
-        </button>
       </Section>
 
       <Section title="Work Experience">
@@ -152,9 +147,6 @@ const CVForm: React.FC<CVFormProps> = ({
               <Input label="End Date" name="endDate" value={exp.endDate} onChange={(e) => onExperienceChange(exp.id, e)} type="month" placeholder="or 'Present'"/>
             </div>
             <Textarea label="Description" name="description" value={exp.description} onChange={(e) => onExperienceChange(exp.id, e)} rows={4} placeholder="Describe your responsibilities and achievements..." />
-            <button onClick={() => onImprove('experience', exp.id, exp.description)} className="flex items-center text-sm bg-indigo-100 text-primary font-semibold py-1 px-3 rounded-full hover:bg-indigo-200 transition" disabled={loadingAI[`experience-${exp.id}`]}>
-               {loadingAI[`experience-${exp.id}`] ? <><LoadingIcon /> Improving...</> : <><SparklesIcon /> Improve with AI</>}
-            </button>
           </div>
         ))}
         <button onClick={onAddExperience} className="flex items-center font-semibold text-primary hover:text-secondary"><AddIcon /> Add Experience</button>
